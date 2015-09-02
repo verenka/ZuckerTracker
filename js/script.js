@@ -9,12 +9,12 @@ if (localStorage.getItem("measurements") != null) {
     measurements = [];
 }
 
+$(document).ready(function(){
 // when the page is loaded the following needs to happen
 // - show form, hide day overview
 // - date/time form field filled with current date/time
 // - onclick listeners for save and cancel
 // - onchange listeners for fields that trigger calculated fields (prandial, bolus gesamt)
-$(document).ready(function(){
 
     showForm();
 
@@ -32,6 +32,15 @@ $(document).ready(function(){
         cancelMeasurements();
     });
 
+    $("#menu_measure").click(function(){
+        showForm();
+    });
+
+    $("#menu_dayview").click(function(){
+        showOverview();
+        //find out which day it is and show corresponding data
+    });
+
     $("#be").change(function () {
         calcPrandial();
     });
@@ -46,30 +55,67 @@ $(document).ready(function(){
 
 });
 
-// save needs to do the following:
+
+function saveMeasurements() {
+    // save needs to do the following:
 // - hide form - ok
 // - show day overview - ok
 // - save data into offline storage - ok
 // - save data into database
 // - get data from storage / database
 // - display data for that day
-
-
-function saveMeasurements() {
     showOverview();
     saveToLocal();
+
 }
 
-// cancel needs to do:
+
+function cancelMeasurements() {
+    // cancel needs to do:
 // - hide form
 // - empty form fields
 // - show day overview
 // - display data for that day
 
-function cancelMeasurements() {
     showOverview()
 }
 
+function displayData(day){
+// take the relvant date and retrieve all data matching it from local storage
+// attach matching data from local storage to table
+
+    var all_data = JSON.parse(localStorage.getItem("measurements"));
+    var today = [];
+
+    $.each(all_data, function(key, value) {
+        // if the day matches, add the entry to the array today
+        if (value.day == day) {
+        today[today.length] = value;
+        }
+    });
+
+    //for each entry for today, display a row
+    $.each(today, function(key, value) {
+        console.log(value);
+        $('#display_table tr:last').after(
+            "<tr>" +
+            "<td>" + value.time + "</td>" +
+            "<td>" + value.bloodsugar + "</td>" +
+            "<td>" + value.be + "</td>" +
+            "<td>" + value.iebe + "</td>" +
+            "<td>" + value.prandial + "</td>" +
+            "<td>" + value.corr + "</td>" +
+            "<td>" + value.bolus + "</td>" +
+            "<td>" + value.basal + "</td>" +
+            "<td>" + value.comment + "</td>" +
+            "</tr>"
+        );
+    });
+
+    //display today's date
+    $('#table_date').html(today[0].day);
+
+}
 
 function saveToLocal() {
     var day = $("#timestamp").val().substr(0,10);
@@ -81,13 +127,16 @@ function saveToLocal() {
     var corr = $("#corr").val();
     var bolus = calcBolus();
     var basal = $("#basal").val();
-    var comment = $("#comm").val();
+    var comment = $("#comment").val();
 
     var entry = {"day": day, "time":time, "bloodsugar": bloodsugar, "be": be, "iebe": iebe, "prandial": prandial,
                  "corr": corr, "bolus": bolus, "basal": basal, "comment": comment};
     measurements[measurements.length] = entry;
 
     localStorage.setItem("measurements", JSON.stringify(measurements));
+
+    //call display data here, because relevant date is passed on
+    displayData(day);
 }
 
 
