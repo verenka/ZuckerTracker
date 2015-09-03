@@ -38,7 +38,6 @@ $(document).ready(function(){
 
     $("#menu_dayview").click(function(){
         showOverview();
-        //find out which day it is and show corresponding data
     });
 
     $("#be").change(function () {
@@ -51,6 +50,47 @@ $(document).ready(function(){
 
     $("#corr").change(function () {
         calcBolus();
+    });
+
+    //set up the links to go forward and backward one day in the overview
+    $("#back").click(function(){
+
+        //Date Magic thanks to Stackvoerflow
+        var currentDate = new Date($("#table_date").html());
+        var yesterday = new Date(currentDate);
+        yesterday.setDate(currentDate.getDate() - 1);
+
+        //for formating
+        var dd = yesterday.getDate();
+        var mm = yesterday.getMonth()+1; //January is 0!
+
+        var yyyy = yesterday.getFullYear();
+
+        if(dd<10) {dd ='0'+ dd}
+        if(mm<10) {mm='0'+mm}
+        yesterday = yyyy+'-'+mm+'-'+dd;
+        displayData(yesterday);
+    });
+
+    $("#forward").click(function(){
+
+        //date magic, thanks stackoverflow
+
+        var currentDate = new Date($("#table_date").html());
+        var tomorrow = new Date(currentDate);
+
+        tomorrow.setDate(currentDate.getDate() + 1);
+
+        var dd = tomorrow.getDate();
+        var mm = tomorrow.getMonth()+1; //January is 0!
+
+        var yyyy = tomorrow.getFullYear();
+
+        if(dd<10) {dd ='0'+ dd}
+        if(mm<10) {mm='0'+mm}
+        tomorrow = yyyy+'-'+mm+'-'+dd;
+
+        displayData(tomorrow);
     });
 
 });
@@ -77,12 +117,14 @@ function cancelMeasurements() {
 // - show day overview
 // - display data for that day
 
-    showOverview()
+    showOverview();
+
 }
 
 function displayData(day){
-// take the relvant date and retrieve all data matching it from local storage
-// attach matching data from local storage to table
+    // take the relvant date and retrieve all data matching it from local storage
+    // attach matching data from local storage to table
+    // catch if no data to display, yet
 
     var all_data = JSON.parse(localStorage.getItem("measurements"));
     var today = [];
@@ -95,25 +137,38 @@ function displayData(day){
     });
 
     //for each entry for today, display a row
-    $.each(today, function(key, value) {
-        console.log(value);
+    if (today.length != 0) {
+
+        $.each(today, function (key, value) {
+
+            $('#display_table tr:last').after(
+                "<tr>" +
+                "<td>" + value.time + "</td>" +
+                "<td>" + value.bloodsugar + "</td>" +
+                "<td>" + value.be + "</td>" +
+                "<td>" + value.iebe + "</td>" +
+                "<td>" + value.prandial + "</td>" +
+                "<td>" + value.corr + "</td>" +
+                "<td>" + value.bolus + "</td>" +
+                "<td>" + value.basal + "</td>" +
+                "<td>" + value.comment + "</td>" +
+                "</tr>"
+            );
+        });
+    } else
+
+    // if no entry for today exists - display a row saying that
+    {
         $('#display_table tr:last').after(
             "<tr>" +
-            "<td>" + value.time + "</td>" +
-            "<td>" + value.bloodsugar + "</td>" +
-            "<td>" + value.be + "</td>" +
-            "<td>" + value.iebe + "</td>" +
-            "<td>" + value.prandial + "</td>" +
-            "<td>" + value.corr + "</td>" +
-            "<td>" + value.bolus + "</td>" +
-            "<td>" + value.basal + "</td>" +
-            "<td>" + value.comment + "</td>" +
+            "<td colspan='10'>" + "Für heute gibt es noch keinen Eintrag."+
+            "</td>" +
             "</tr>"
         );
-    });
+    }
 
-    //display today's date
-    $('#table_date').html(today[0].day);
+    //display today's date at the top of the table
+    $('#table_date').html(day);
 
 }
 
@@ -153,6 +208,9 @@ function showOverview() {
     $("#menu_dayview").attr('class','active');
     $("#menu_measure").removeAttr('class');
 
+    //get todays's date and show corresponding data (or error msg if none exists)
+    var todayDate = $.datepicker.formatDate('yy-mm-dd', new Date());
+    displayData(todayDate);
 }
 
 function calcPrandial() {
