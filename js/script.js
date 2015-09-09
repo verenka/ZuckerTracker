@@ -139,10 +139,15 @@ function displayData(day){
     //for each entry for today, display a row
     if (today.length != 0) {
 
+        //first remove rows (except header)
+        $(".display_row").remove();
+
+        //then loop through entries
+
         $.each(today, function (key, value) {
 
             $('#display_table tr:last').after(
-                "<tr>" +
+                "<tr class='display_row'>" +
                 "<td>" + value.time + "</td>" +
                 "<td>" + value.bloodsugar + "</td>" +
                 "<td>" + value.be + "</td>" +
@@ -159,9 +164,14 @@ function displayData(day){
 
     // if no entry for today exists - display a row saying that
     {
+        //first remove rows (except header)
+        $(".display_row").remove();
+
+        //then display an empty row
+
         $('#display_table tr:last').after(
-            "<tr>" +
-            "<td colspan='10'>" + "Für heute gibt es noch keinen Eintrag."+
+            "<tr class='display_row'>" +
+            "<td colspan='10'>" + "Für dieses Datum gibt es noch keinen Eintrag."+
             "</td>" +
             "</tr>"
         );
@@ -173,6 +183,8 @@ function displayData(day){
 }
 
 function saveToLocal() {
+    //check if mandatory fields are filled
+
     var day = $("#timestamp").val().substr(0,10);
     var time =$("#timestamp").val().substr(11,15);
     var bloodsugar = $("#bloodsugar").val();
@@ -214,15 +226,25 @@ function showOverview() {
 }
 
 function calcPrandial() {
+    //both be and ie/be need to be filled or both need to be empty
+    // TO DO: impractical, move check to save click!
+
     var be = $("#be").val();
     var iebe = $("#iebe").val();
-    if (be > 0 && iebe > 0) {
-        var prandial = Math.round(be * iebe);
-        $("#prandial").html(prandial);
-    } else {
-        $("#prandial").html(" 0");
+
+    if (be == "" && iebe == "") {
+        var prandial = "";
+    } else if (be == "" && iebe != "") {
+        alert("bitte das Feld BE ausfüllen!");
+    } else if (be != "" && iebe == "") {
+        alert("bitte das Feld IE/BE ausfüllen!");
     }
-    return prandial
+    else if (be != "" && iebe != "") {
+        var prandial = Math.round(be * iebe);
+    }
+
+    $("#prandial").html(prandial);
+    return prandial;
 }
 
 function calcBolus() {
