@@ -107,11 +107,17 @@ function saveMeasurements() {
 // - TO DO: get data from storage / database
 
     //first check if required fields are filled
+    //Date/Time always need to be filled!
+    if ($("#timestamp").val() == "") {
+        alert("Bitte Datum/Uhrzeit angeben!");
+    }
+    else
     //both be and iebe need to be filled or both need to be empty
     if (($("#be").val() == "" && $("#iebe").val() != "") ||($("#be").val() != "" && $("#iebe").val() == ""))
     {
-       alert("Bitte sowohl BE als auch IE/BE auswfüllen!");
+       alert("Bitte sowohl BE als auch IE/BE ausfüllen!");
     }
+
     else {
     showOverview();
     saveToLocal();
@@ -257,13 +263,17 @@ function calcPrandial() {
 function calcBolus() {
     var prandial = $("#prandial").html()-0; // minus zero added, so js will treat it as numbers
     var corr = $("#corr").val()-0;
-    if (prandial > 0 && corr > 0) {
-        var total = prandial + corr;
-        $("#bolus").html(total);
-    } else {
-        $("#bolus").html("0");
+    if (prandial != "" && corr != "") {
+        var bolus_calc = prandial + corr;
+    } else if (prandial != "" && corr == "")
+    {
+        bolus_calc = prandial;
+    } else
+    {
+        bolus_calc = "";
     }
-    return total;
+    $("#bolus").html(bolus_calc);
+    return bolus_calc;
 }
 
 function emptyFormFields() {
