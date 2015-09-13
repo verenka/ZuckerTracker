@@ -11,10 +11,10 @@ if (localStorage.getItem("measurements") != null) {
 
 $(document).ready(function(){
 // when the page is loaded the following needs to happen
-// - show form, hide day overview
-// - date/time form field filled with current date/time
-// - onclick listeners for save and cancel
-// - onchange listeners for fields that trigger calculated fields (prandial, bolus gesamt)
+// - show form, hide day overview - ok
+// - date/time form field filled with current date/time - ok
+// - onclick listeners for save and cancel - ok
+// - onchange listeners for fields that trigger calculated fields (prandial, bolus gesamt) - ok
 
     showForm();
 
@@ -97,27 +97,38 @@ $(document).ready(function(){
 
 
 function saveMeasurements() {
-    // save needs to do the following:
+// save needs to do the following:
 // - hide form - ok
 // - show day overview - ok
 // - save data into offline storage - ok
-// - save data into database
-// - get data from storage / database
-// - display data for that day
+// - display data for that day - ok
+// - empty form fields for next measuring - ok
+// - TO DO: save data into database
+// - TO DO: get data from storage / database
+
+    //first check if required fields are filled
+    //both be and iebe need to be filled or both need to be empty
+    if (($("#be").val() == "" && $("#iebe").val() != "") ||($("#be").val() != "" && $("#iebe").val() == ""))
+    {
+       alert("Bitte sowohl BE als auch IE/BE auswfüllen!");
+    }
+    else {
     showOverview();
     saveToLocal();
-
+    emptyFormFields();
+    }
 }
 
 
 function cancelMeasurements() {
-    // cancel needs to do:
-// - hide form
-// - empty form fields
-// - show day overview
-// - display data for that day
+// cancel needs to do:
+// - hide form - ok
+// - empty form fields - ok
+// - show day overview - ok
+// - display data for that day - ok
 
     showOverview();
+    emptyFormFields();
 
 }
 
@@ -234,12 +245,8 @@ function calcPrandial() {
 
     if (be == "" && iebe == "") {
         var prandial = "";
-    } else if (be == "" && iebe != "") {
-        alert("bitte das Feld BE ausfüllen!");
-    } else if (be != "" && iebe == "") {
-        alert("bitte das Feld IE/BE ausfüllen!");
     }
-    else if (be != "" && iebe != "") {
+    else {
         var prandial = Math.round(be * iebe);
     }
 
@@ -257,4 +264,17 @@ function calcBolus() {
         $("#bolus").html("0");
     }
     return total;
+}
+
+function emptyFormFields() {
+    $("#timestamp").val("")
+    $("#bloodsugar").val("");
+    $("#be").val("");
+    $("#iebe").val("");
+    $("#prandial").html("");
+    $("#corr").val("");
+    $("#bolus").html("");
+    $("#basal").val("");
+    $("#comment").val("");
+
 }
