@@ -10,6 +10,7 @@ if (localStorage.getItem("measurements") != null) {
 }
 
 $(document).ready(function(){
+
 // when the page is loaded the following needs to happen
 // - show form, hide day overview - ok
 // - date/time form field filled with current date/time - ok
@@ -110,18 +111,15 @@ function saveMeasurements() {
     //Date/Time always need to be filled!
     if ($("#timestamp").val() == "") {
         alert("Bitte Datum/Uhrzeit angeben!");
-    }
-    else
+    } else
     //both be and iebe need to be filled or both need to be empty
-    if (($("#be").val() == "" && $("#iebe").val() != "") ||($("#be").val() != "" && $("#iebe").val() == ""))
-    {
+    if (($("#be").val() == "" && $("#iebe").val() != "") || ($("#be").val() != "" && $("#iebe").val() == "")) {
        alert("Bitte sowohl BE als auch IE/BE ausfüllen!");
     }
-
     else {
-    showOverview();
-    saveToLocal();
-    emptyFormFields();
+        saveToLocal();
+        showOverview();
+        emptyFormFields();
     }
 }
 
@@ -200,7 +198,7 @@ function displayData(day){
 }
 
 function saveToLocal() {
-    //check if mandatory fields are filled
+    //check if mandatory fields are filled is done in onclick function
 
     var day = $("#timestamp").val().substr(0,10);
     var time =$("#timestamp").val().substr(11,15);
@@ -213,9 +211,9 @@ function saveToLocal() {
     var basal = $("#basal").val();
     var comment = $("#comment").val();
 
-    var entry = {"day": day, "time":time, "bloodsugar": bloodsugar, "be": be, "iebe": iebe, "prandial": prandial,
+    measurements[measurements.length] = {"day": day, "time":time, "bloodsugar": bloodsugar, "be": be, "iebe": iebe, "prandial": prandial,
                  "corr": corr, "bolus": bolus, "basal": basal, "comment": comment};
-    measurements[measurements.length] = entry;
+    console.log(measurements);
 
     localStorage.setItem("measurements", JSON.stringify(measurements));
 
@@ -236,15 +234,12 @@ function showOverview() {
     $("#measure").hide();
     $("#menu_dayview").attr('class','active');
     $("#menu_measure").removeAttr('class');
-
     //get todays's date and show corresponding data (or error msg if none exists)
     var todayDate = $.datepicker.formatDate('yy-mm-dd', new Date());
     displayData(todayDate);
 }
 
 function calcPrandial() {
-    //both be and ie/be need to be filled or both need to be empty
-    // TO DO: impractical, move check to save click!
 
     var be = $("#be").val();
     var iebe = $("#iebe").val();
@@ -277,7 +272,7 @@ function calcBolus() {
 }
 
 function emptyFormFields() {
-    $("#timestamp").val("")
+    $("#timestamp").val("");
     $("#bloodsugar").val("");
     $("#be").val("");
     $("#iebe").val("");
