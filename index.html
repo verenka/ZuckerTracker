@@ -22,6 +22,9 @@
     <script type="text/javascript" src="datetimepicker/js/locales/bootstrap-datetimepicker.de.js" charset="UTF-8"></script>
     <link rel="stylesheet" href="datetimepicker/css/bootstrap-datetimepicker.css">
 
+    <!-- JSON to CSV converter -->
+    <script type="text/javascript" src="PapaParse-4.1.0/papaparse.js" charset="UTF-8"></script>
+
     <!-- My Style Sheet for Tweaks -->
     <link rel="stylesheet" href="mycss.css">
 
@@ -143,7 +146,11 @@
     </table>
 
 </div>
-
+<div class="container" id="exportview">
+<p><button class="btn btn-lg" id="start_export">Daten exportieren</button></p>
+    <ul id="csv">
+    </ul>
+</div>
 <script src="js/script.js" type="application/javascript"></script>
 </body>
 </html>

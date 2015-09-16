@@ -29,8 +29,13 @@ $(document).ready(function(){
     $("#save").click(function(){
         saveMeasurements();
     });
+
     $("#cancel").click(function() {
         cancelMeasurements();
+    });
+
+    $("#menu_export").click(function() {
+       showExport();
     });
 
     $("#menu_measure").click(function(){
@@ -51,6 +56,30 @@ $(document).ready(function(){
 
     $("#corr").change(function () {
         calcBolus();
+    });
+
+    $("#start_export").click(function() {
+
+        // JSON to CSV parser parses the array of JSON Objects and turns into csv file
+        var csv = Papa.unparse(measurements, {
+            quotes: true
+        });
+
+        // Because of problems with the export, here I replace the line breaks included by Papaparse with others
+        // and finally create a file to be downloaded
+        // also: thanks stackoverflow for this code
+
+        var csvNewLine = csv.replace("\r\n", "%0A");
+       
+        $("#csv").append(csvNewLine);
+        var a         = document.createElement('a');
+        a.href        = 'data:attachment/csv,' + csvNewLine;
+        a.target      = '_blank';
+        a.download    = 'myFile.csv';
+
+        document.body.appendChild(a);
+        a.click();
+
     });
 
     //set up the links to go forward and backward one day in the overview
@@ -123,6 +152,16 @@ function saveMeasurements() {
     }
 }
 
+function showExport() {
+
+    $("#dayview").hide();
+    $("#measure").hide();
+    $("#exportview").show();
+    $("#menu_export").attr('class','active');
+    $("#menu_dayview").removeAttr('class');
+    $("#menu_measure").removeAttr('class');
+    emptyFormFields();
+}
 
 function cancelMeasurements() {
 // cancel needs to do:
@@ -224,16 +263,20 @@ function saveToLocal() {
 
 function showForm() {
     $("#dayview").hide();
+    $("#exportview").hide();
     $("#measure").show();
     $("#menu_measure").attr('class','active');
     $("#menu_dayview").removeAttr('class');
+    $("#menu_export").removeAttr('class');
 }
 
 function showOverview() {
     $("#dayview").show();
     $("#measure").hide();
+    $("#exportview").hide();
     $("#menu_dayview").attr('class','active');
     $("#menu_measure").removeAttr('class');
+    $("#menu_export").removeAttr('class');
     //get todays's date and show corresponding data (or error msg if none exists)
     var todayDate = $.datepicker.formatDate('yy-mm-dd', new Date());
     displayData(todayDate);
@@ -248,7 +291,7 @@ function calcPrandial() {
         var prandial = "";
     }
     else {
-        var prandial = Math.round(be * iebe);
+        prandial = Math.round(be * iebe);
     }
 
     $("#prandial").html(prandial);
